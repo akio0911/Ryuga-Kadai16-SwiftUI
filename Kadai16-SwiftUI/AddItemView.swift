@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AddItemView: View {
-    @State private var newItem = ""
+    @Binding var newItem:String
     let didSave: (Fruit) -> Void
     let didCancel: () -> Void
 
@@ -51,9 +51,10 @@ struct CustomTextFieldStyle: ViewModifier {
 }
 
 struct Preview: View {
+    @State var newItem = "りんご"
     @State var fruits = [Fruit(name: "りんご", isChecked: false)]
     var body: some View {
-        AddItemView(didSave: { _ in }, didCancel: {})
+        AddItemView(newItem: $newItem, didSave: { _ in }, didCancel: {})
     }
 }
 
