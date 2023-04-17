@@ -8,12 +8,16 @@
 import SwiftUI
 
 struct AddItemView: View {
-    enum Mode {
+    enum Mode: Identifiable {
         case create(didSave: (Fruit) -> Void, didCancel: () -> Void)
         case update(fruit: Fruit, didSave: (Fruit) -> Void, didCancel: () -> Void)
+
+        var id: UUID {
+            UUID()
+        }
     }
 
-    @State var name: String = ""
+    @State var name: String
 
     let mode: Mode
 
@@ -22,9 +26,9 @@ struct AddItemView: View {
 
         switch mode {
         case .create:
-            name = ""
+            _name = .init(initialValue: "")
         case let .update(fruit: fruit, didSave: _, didCancel: _):
-            name = fruit.name
+            _name = .init(initialValue: fruit.name)
         }
     }
 

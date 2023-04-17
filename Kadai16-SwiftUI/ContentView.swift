@@ -16,16 +16,14 @@ struct Fruit: Identifiable {
 }
 
 struct ContentView: View {
-    @State private var showingModal = false
-    @State private var item = ""
-    @State private var newItemFlag = false
-    @State var indexNum = 0
     @State var fruits = [
         Fruit(name: "りんご", isChecked: false),
         Fruit(name: "みかん", isChecked: true),
         Fruit(name: "バナナ", isChecked: false),
         Fruit(name: "パイナップル", isChecked: true)
     ]
+
+    @State private var editMode: AddItemView.Mode?
 
     var body: some View {
         NavigationView {
@@ -50,10 +48,16 @@ struct ContentView: View {
                                 .foregroundColor(Color.blue)
                         }
                         .onTapGesture {
-                            showingModal = true
-                            newItemFlag = false
-                            item = fruit.name
-                            indexNum = index
+                            editMode = .update(
+                                fruit: fruits[index],
+                                didSave: {
+                                    fruits[index] = $0
+                                    editMode = nil
+                                },
+                                didCancel: {
+                                    editMode = nil
+                                }
+                            )
                         }
                     }
                 }
@@ -63,34 +67,20 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        showingModal = true
-                        newItemFlag = true
-                        item = ""
+                        editMode = .create(
+                            didSave: {
+                                fruits.append($0)
+                                editMode = nil
+                            },
+                            didCancel: {
+                                editMode = nil
+                            }
+                        )
                     }) {
                         Image(systemName: "plus")
                     }
-                    .fullScreenCover(isPresented: $showingModal) {
-                        AddItemView(
-                            mode: newItemFlag
-                                ? .create(
-                                    didSave: {
-                                        fruits.append($0)
-                                        showingModal = false
-                                    },
-                                    didCancel: {
-                                        showingModal = false
-                                    }
-                                )
-                                : .update(fruit: fruits[indexNum],
-                                    didSave: {
-                                        fruits[indexNum] = $0
-                                        showingModal = false
-                                    },
-                                    didCancel: {
-                                        showingModal = false
-                                    }
-                                )
-                        )
+                    .fullScreenCover(item: $editMode) { mode in
+                        AddItemView(mode: mode)
                     }
                 }
             }
