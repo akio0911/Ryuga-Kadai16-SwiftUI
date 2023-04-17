@@ -71,18 +71,25 @@ struct ContentView: View {
                     }
                     .fullScreenCover(isPresented: $showingModal) {
                         AddItemView(
-                            newItem: $item,
-                            didSave: { fruit in
-                                if newItemFlag {
-                                    fruits.append(fruit)
-                                } else {
-                                    fruits[indexNum] = fruit
-                                }
-                                showingModal = false
-                            },
-                            didCancel: {
-                                showingModal = false
-                            }
+                            mode: newItemFlag
+                                ? .create(
+                                    didSave: {
+                                        fruits.append($0)
+                                        showingModal = false
+                                    },
+                                    didCancel: {
+                                        showingModal = false
+                                    }
+                                )
+                                : .update(fruit: fruits[indexNum],
+                                    didSave: {
+                                        fruits[indexNum] = $0
+                                        showingModal = false
+                                    },
+                                    didCancel: {
+                                        showingModal = false
+                                    }
+                                )
                         )
                     }
                 }
